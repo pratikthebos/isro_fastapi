@@ -6,3 +6,4 @@ joblib
 openpyxl
 python-multipart
 numpy
+httpx
