@@ -8,12 +8,13 @@
 # @app.get("/")
 # def root():
 #     return {"message": "Rain Prediction API is running! ISRO PROJECT requirement "}
-
+from app.routes import predict
 from fastapi import FastAPI
 import httpx
 import asyncio
 
 app = FastAPI(title="Rain Prediction API")
+app.include_router(predict.router, prefix="/api", tags=["Prediction"])
 
 URL = "https://student-pratikn.onrender.com"
 INTERVAL = 30  # seconds
