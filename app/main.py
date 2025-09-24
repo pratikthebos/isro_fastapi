@@ -16,7 +16,7 @@ import asyncio
 app = FastAPI(title="Rain Prediction API")
 app.include_router(predict.router, prefix="/api", tags=["Prediction"])
 
-URL = " https://isro-fastapi.onrender.com"
+URL = "https://isro-fastapi.onrender.com"
 INTERVAL = 30  # seconds
 
 async def ping_website():
