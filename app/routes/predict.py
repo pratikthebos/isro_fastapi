@@ -4,17 +4,17 @@
 # from pydantic import BaseModel
 # import joblib
 # import numpy as np
+# from datetime import datetime
 # from app.core.config import MODEL_PATH
 
 # router = APIRouter()
 
-# # Load trained ML model
+# # Load trained ML model once
 # model = joblib.load(MODEL_PATH)
 
-# # Define input schema (6 features only)
+# # Input schema (date + weather params)
 # class RainInput(BaseModel):
-#     year: int
-#     month: int
+#     date: str  # e.g. "2025-09-25"
 #     temperature: float
 #     humidity: float
 #     pressure: float
@@ -22,10 +22,18 @@
 
 # @router.post("/predict_rain")
 # def predict_rain(input: RainInput):
-#     # Arrange features in same order as training
+#     # Parse date to extract year & month
+#     try:
+#         parsed_date = datetime.strptime(input.date, "%Y-%m-%d")
+#         year = parsed_date.year
+#         month = parsed_date.month
+#     except ValueError:
+#         return {"error": "Invalid date format. Use YYYY-MM-DD"}
+
+#     # Arrange features in the same order as model training
 #     features = np.array([[ 
-#         input.year,
-#         input.month,
+#         year,
+#         month,
 #         input.temperature,
 #         input.humidity,
 #         input.pressure,
@@ -36,8 +44,9 @@
 #     prediction = model.predict(features)[0]
 
 #     return {
+#         "date": input.date,
 #         "prediction_mm": float(prediction),
-#         "message": f"Predicted rainfall is approximately {prediction:.2f} mm."
+#         "message": f"Predicted rainfall on {input.date} is approximately {prediction:.2f} mm."
 #     }
 
 
@@ -55,13 +64,9 @@ router = APIRouter()
 # Load trained ML model once
 model = joblib.load(MODEL_PATH)
 
-# Input schema (date + weather params)
+# Input schema (only date)
 class RainInput(BaseModel):
     date: str  # e.g. "2025-09-25"
-    temperature: float
-    humidity: float
-    pressure: float
-    wind_speed: float
 
 @router.post("/predict_rain")
 def predict_rain(input: RainInput):
@@ -73,14 +78,20 @@ def predict_rain(input: RainInput):
     except ValueError:
         return {"error": "Invalid date format. Use YYYY-MM-DD"}
 
+    # For demo: you can use placeholder/fixed values for temperature, humidity, etc.
+    temperature = 30.0
+    humidity = 70.0
+    pressure = 1010.0
+    wind_speed = 5.0
+
     # Arrange features in the same order as model training
     features = np.array([[ 
         year,
         month,
-        input.temperature,
-        input.humidity,
-        input.pressure,
-        input.wind_speed
+        temperature,
+        humidity,
+        pressure,
+        wind_speed
     ]])
 
     # Make prediction
