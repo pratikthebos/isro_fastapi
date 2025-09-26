@@ -1,0 +1,81 @@
+from datetime import datetime
+import pandas as pd
+from meteostat import Stations, Daily
+
+# Coordinates of Dehradun
+lat, lon = 30.3165, 78.0322
+
+# Date range
+start = datetime(2020, 1, 1)
+end   = datetime(2024, 12, 31)
+
+# Find nearest stations
+stations = Stations()
+stations = stations.nearby(lat, lon)
+stations = stations.fetch(5)   # fetch top 5 nearest
+
+print("Nearest stations found:")
+print(stations[['name','country','wmo']])  # ✅ removed 'id' column (station ID is the index)
+
+# Use the first station index as ID
+station_id = stations.index[0]
+print(f"Using station: {station_id} - {stations.loc[station_id, 'name']}")
+
+# Fetch daily weather data
+data = Daily(station_id, start, end)
+data = data.fetch()
+
+print("Columns available:", data.columns.tolist())
+
+# Rename & clean
+df = data.reset_index().rename(columns={
+    'time': 'date',
+    'tavg': 'tavg_C',
+    'tmin': 'tmin_C',
+    'tmax': 'tmax_C',
+    'prcp': 'rainfall_mm',
+    'pres': 'pressure_hPa',
+    'wspd': 'wind_speed_mps',
+    'wdir': 'wind_dir_deg',
+    'tsun': 'sunshine_minutes'
+})
+
+# Convert date & fill missing
+df['date'] = pd.to_datetime(df['date']).dt.date
+df = df.fillna(method='ffill').fillna(0)
+
+# Save to CSV
+out_file = "dehradun_daily_2020_2024.csv"
+df.to_csv(out_file, index=False)
+print(f"✅ Saved CSV: {out_file}")
+
+
+the meteostat Python library is generally accurate because it doesn’t generate its own data, it acts as a wrapper around official weather/climate datasets from trusted sources like:
+
+NOAA (National Oceanic and Atmospheric Administration, USA)
+
+DWD (Deutscher Wetterdienst, Germany)
+
+Environment Canada
+
+Other national meteorological agencies & global reanalysis datasets
+
+
+Modules you mentioned:
+
+Stations → lets you query and select official weather stations near a location.
+
+Daily → retrieves daily historical weather data (temperature, precipitation, etc.) for those stations.
+
+
+Accuracy factors:
+
+1. Depends on the nearest weather station – if you’re close to an official station (airport/city station), accuracy is very good.
+
+
+2. Coverage varies by country – major cities have dense station coverage, but rural/remote areas may have limited or interpolated data.
+
+
+3. Timeframe – historical data is more complete, while recent data may have slight delays in availability.
+
+
