@@ -1,0 +1,15 @@
+ https://isro-fastapi.onrender.com/api/predict_rain 
+
+ {
+  "date": "2025-09-27",
+  "temperature": 29,
+  "humidity": 65,
+  "pressure": 1012,
+  "wind_speed": 4
+}
+
+{
+    "date": "2025-09-27",
+    "prediction_mm": 4.5600000000000005,
+    "message": "Predicted rainfall on 2025-09-27 is approximately 4.56 mm."
+}
